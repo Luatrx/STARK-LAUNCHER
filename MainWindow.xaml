@@ -1,0 +1,1433 @@
+<Window x:Class="StarkFNLauncher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Stark FN" Width="1220" Height="740"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="GlassBtn" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="7" Background="#14FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" Padding="14,8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#22FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PrimaryBtn" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="8" Padding="22,10">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#6366F1" Offset="0"/>
+                                    <GradientStop Color="#8B5CF6" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Color="#6366F1" BlurRadius="16" ShadowDepth="0" Opacity="0.45"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SideBtn" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="10" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#10FFFFFF"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#18FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SideBtnActive" TargetType="Button" BasedOn="{StaticResource SideBtn}">
+            <Setter Property="Background" Value="#1A6366F1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="10" Background="#1A6366F1" BorderBrush="#336366F1" BorderThickness="1">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#6366F1" BlurRadius="14" ShadowDepth="0" Opacity="0.25"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Border x:Name="RootBorder" CornerRadius="14" BorderBrush="#20FFFFFF" BorderThickness="1">
+            <Border.Background>
+                <SolidColorBrush Color="#09090F"/>
+            </Border.Background>
+            <Border.Effect>
+                <DropShadowEffect Color="#000000" BlurRadius="90" ShadowDepth="0" Opacity="1"/>
+            </Border.Effect>
+            <Grid ClipToBounds="True">
+
+                <Canvas IsHitTestVisible="False">
+                    <Ellipse Canvas.Left="-100" Canvas.Top="-100" Width="500" Height="500" Opacity="0.06">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#6366F1" Offset="0"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <Ellipse Canvas.Right="-150" Canvas.Bottom="-150" Width="600" Height="600" Opacity="0.04">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush>
+                                <GradientStop Color="#8B5CF6" Offset="0"/>
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Canvas>
+                <Canvas x:Name="ParticleCanvas" IsHitTestVisible="False"/>
+
+                <!-- LOADING -->
+                <Grid x:Name="LoadingScreen">
+                  <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#04040C" Offset="0"/><GradientStop Color="#09091E" Offset="1"/></LinearGradientBrush></Grid.Background>
+
+                  <!-- Ambient rings -->
+                  <Canvas IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse Canvas.Left="-300" Canvas.Top="-300" Width="600" Height="600" Stroke="#06FFFFFF" StrokeThickness="1" Opacity="0.5"/>
+                    <Ellipse Canvas.Left="-220" Canvas.Top="-220" Width="440" Height="440" Stroke="#08FFFFFF" StrokeThickness="1"/>
+                    <Ellipse Canvas.Left="-140" Canvas.Top="-140" Width="280" Height="280" Stroke="#0A6366F1" StrokeThickness="1">
+                      <Ellipse.Effect><DropShadowEffect Color="#6366F1" BlurRadius="12" ShadowDepth="0" Opacity="0.4"/></Ellipse.Effect>
+                    </Ellipse>
+                  </Canvas>
+
+                  <!-- Center content -->
+                  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                    <!-- Logo orb -->
+                    <Grid Width="100" Height="100" HorizontalAlignment="Center" Margin="0,0,0,32">
+                      <Ellipse Width="100" Height="100">
+                        <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#1A1870" Offset="0"/><GradientStop Color="#06060E" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+                      </Ellipse>
+                      <Ellipse Width="100" Height="100" Stroke="#1A6366F1" StrokeThickness="1"/>
+                      <Ellipse Width="70" Height="70" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#2D2A90" Offset="0"/><GradientStop Color="#0D0C28" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+                      </Ellipse>
+                      <TextBlock Text="✦" FontSize="36" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI">
+                        <TextBlock.Effect><DropShadowEffect Color="#6366F1" BlurRadius="28" ShadowDepth="0" Opacity="1"/></TextBlock.Effect>
+                      </TextBlock>
+                    </Grid>
+
+                    <!-- Title -->
+                    <TextBlock Text="STARK FN" FontFamily="Segoe UI" FontSize="38" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,4">
+                      <TextBlock.Effect><DropShadowEffect Color="#6366F1" BlurRadius="30" ShadowDepth="0" Opacity="0.55"/></TextBlock.Effect>
+                    </TextBlock>
+                    <TextBlock Text="FORTNITE PRIVATE SERVER" FontFamily="Segoe UI" FontSize="9" FontWeight="SemiBold" Foreground="#2D3A5A" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                    <TextBlock Text="Chapter 2  ·  Season 4  ·  Build 14.60" FontFamily="Segoe UI" FontSize="11" Foreground="#1A2340" HorizontalAlignment="Center" Margin="0,0,0,52"/>
+
+                    <!-- Progress bar -->
+                    <Border Width="320" HorizontalAlignment="Center" Margin="0,0,0,16">
+                      <Grid Height="4">
+                        <Border Height="4" Background="#0AFFFFFF" CornerRadius="2"/>
+                        <Border Height="4" HorizontalAlignment="Left" CornerRadius="2">
+                          <Border x:Name="LoadBar" Width="0" Height="4" CornerRadius="2" HorizontalAlignment="Left">
+                            <Border.Background>
+                              <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#6366F1" Offset="0"/>
+                                <GradientStop Color="#A78BFA" Offset="0.5"/>
+                                <GradientStop Color="#EC4899" Offset="1"/>
+                              </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect><DropShadowEffect Color="#8B5CF6" BlurRadius="12" ShadowDepth="0" Opacity="0.9"/></Border.Effect>
+                          </Border>
+                        </Border>
+                        <Border x:Name="LoadDot" Width="10" Height="10" Background="White" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5,0,0,0">
+                          <Border.Effect><DropShadowEffect Color="#A78BFA" BlurRadius="10" ShadowDepth="0" Opacity="1"/></Border.Effect>
+                          <Border.RenderTransform><TranslateTransform x:Name="DotTranslate" X="0"/></Border.RenderTransform>
+                        </Border>
+                      </Grid>
+                    </Border>
+
+                    <TextBlock x:Name="LoadMsg" Text="Starting..." FontFamily="Segoe UI" FontSize="12" Foreground="#2D3A5A" HorizontalAlignment="Center"/>
+                  </StackPanel>
+
+                  <!-- Version watermark -->
+                  <TextBlock Text="v1.0" FontFamily="Segoe UI" FontSize="10" Foreground="#0D1020"
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,16,14"/>
+                </Grid>
+
+                <!-- UPDATE MODAL -->
+                <Grid x:Name="UpdateModal" Visibility="Collapsed">
+                  <Grid.Background><SolidColorBrush Color="#000000" Opacity="0.85"/></Grid.Background>
+                  <Border Width="480" CornerRadius="16" BorderBrush="#22FFFFFF" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#0D0D22" Offset="0"/><GradientStop Color="#09090F" Offset="1"/></LinearGradientBrush></Border.Background>
+                    <Border.Effect><DropShadowEffect Color="Black" BlurRadius="60" ShadowDepth="0" Opacity="0.9"/></Border.Effect>
+                    <StackPanel Margin="36,32">
+                      <!-- Icon -->
+                      <Grid Width="56" Height="56" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <Ellipse Width="56" Height="56"><Ellipse.Fill><RadialGradientBrush><GradientStop Color="#1A1870" Offset="0"/><GradientStop Color="#09090F" Offset="1"/></RadialGradientBrush></Ellipse.Fill></Ellipse>
+                        <TextBlock Text="↑" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI" FontWeight="Bold">
+                          <TextBlock.Effect><DropShadowEffect Color="#6366F1" BlurRadius="16" ShadowDepth="0" Opacity="0.8"/></TextBlock.Effect>
+                        </TextBlock>
+                      </Grid>
+                      <TextBlock Text="Update Available" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                      <TextBlock x:Name="UpdateVersionTxt" Text="" FontFamily="Segoe UI" FontSize="13" Foreground="#A5B4FC" HorizontalAlignment="Center" Margin="0,0,0,14"/>
+                      <TextBlock x:Name="UpdateNotesTxt" Text="" FontFamily="Segoe UI" FontSize="12" Foreground="#4B5563" HorizontalAlignment="Center" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,28"/>
+                      <!-- Progress bar for download -->
+                      <Border x:Name="UpdateProgressWrap" Height="4" CornerRadius="2" Background="#0AFFFFFF" Margin="0,0,0,8" Visibility="Collapsed">
+                        <Border x:Name="UpdateProgressBar" Width="0" Height="4" CornerRadius="2" HorizontalAlignment="Left">
+                          <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#6366F1" Offset="0"/><GradientStop Color="#8B5CF6" Offset="1"/></LinearGradientBrush></Border.Background>
+                        </Border>
+                      </Border>
+                      <TextBlock x:Name="UpdateProgressTxt" Text="" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource PrimaryBtn}" Margin="0,0,10,0" Click="DoUpdate_Click" x:Name="UpdateBtn">
+                          <TextBlock Text="Download &amp; Update" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                        </Button>
+                        <Button Style="{StaticResource GlassBtn}" Click="SkipUpdate_Click">
+                          <TextBlock Text="Skip for Now" FontFamily="Segoe UI" FontSize="12" Foreground="#9CA3AF"/>
+                        </Button>
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+
+                <!-- BUILD CHECK MODAL -->
+                <Grid x:Name="IntegrityModal" Visibility="Collapsed">
+                  <Grid.Background><SolidColorBrush Color="#000000" Opacity="0.85"/></Grid.Background>
+                  <Border Width="500" CornerRadius="16" BorderBrush="#22FFFFFF" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#0D0D22" Offset="0"/><GradientStop Color="#09090F" Offset="1"/></LinearGradientBrush></Border.Background>
+                    <Border.Effect><DropShadowEffect Color="Black" BlurRadius="60" ShadowDepth="0" Opacity="0.9"/></Border.Effect>
+                    <StackPanel Margin="36,32">
+                      <Grid Width="56" Height="56" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <Ellipse Width="56" Height="56"><Ellipse.Fill><RadialGradientBrush><GradientStop Color="#1A1870" Offset="0"/><GradientStop Color="#09090F" Offset="1"/></RadialGradientBrush></Ellipse.Fill></Ellipse>
+                        <TextBlock Text="🔍" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                      </Grid>
+                      <TextBlock x:Name="IntegrityTitle" Text="Checking Build Integrity..." FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                      <TextBlock x:Name="IntegritySubTxt" Text="Scanning your Fortnite 14.60 build files..." FontFamily="Segoe UI" FontSize="12" Foreground="#4B5563" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                      <Border Height="4" CornerRadius="2" Background="#0AFFFFFF" Margin="0,0,0,8">
+                        <Border x:Name="IntegrityBar" Width="0" Height="4" CornerRadius="2" HorizontalAlignment="Left">
+                          <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#6366F1" Offset="0"/><GradientStop Color="#8B5CF6" Offset="1"/></LinearGradientBrush></Border.Background>
+                        </Border>
+                      </Border>
+                      <TextBlock x:Name="IntegrityPct" Text="0%" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                      <StackPanel x:Name="IntegrityResult" Visibility="Collapsed" Margin="0,0,0,20">
+                        <Border CornerRadius="8" Padding="14,12" BorderBrush="#0EFFFFFF" BorderThickness="1" Margin="0,0,0,10">
+                          <Border.Background><SolidColorBrush Color="#0C0D1A" Opacity="0.8"/></Border.Background>
+                          <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel HorizontalAlignment="Center">
+                              <TextBlock x:Name="IntChecked" Text="0" FontFamily="Segoe UI" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                              <TextBlock Text="Checked" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                              <TextBlock x:Name="IntMissing" Text="0" FontFamily="Segoe UI" FontSize="22" FontWeight="Bold" Foreground="#EF4444" HorizontalAlignment="Center"/>
+                              <TextBlock Text="Missing" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                              <TextBlock x:Name="IntCorrupt" Text="0" FontFamily="Segoe UI" FontSize="22" FontWeight="Bold" Foreground="#F59E0B" HorizontalAlignment="Center"/>
+                              <TextBlock Text="Issues" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                        <TextBlock x:Name="IntStatusTxt" Text="" FontFamily="Segoe UI" FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap"/>
+                      </StackPanel>
+                      <Button Style="{StaticResource GlassBtn}" HorizontalAlignment="Center" Click="CloseIntegrity_Click" x:Name="IntegrityCloseBtn" Visibility="Collapsed">
+                        <TextBlock Text="Close" FontFamily="Segoe UI" FontSize="12" Foreground="#9CA3AF"/>
+                      </Button>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+
+
+                <!-- APP -->
+                <Grid x:Name="AppShell" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- TOP BAR -->
+                    <Border Grid.Row="0" BorderBrush="#0EFFFFFF" BorderThickness="0,0,0,1">
+                        <Border.Background>
+                            <SolidColorBrush Color="#060610" Opacity="0.9"/>
+                        </Border.Background>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                                <Grid Width="28" Height="28" Margin="0,0,10,0">
+                                    <Ellipse Fill="#1A1A40"/>
+                                    <TextBlock Text="✦" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect Color="#6366F1" BlurRadius="8" ShadowDepth="0" Opacity="0.8"/>
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Grid>
+                                <TextBlock Text="Stark FN" FontFamily="Segoe UI" FontSize="14" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                                <Border Width="1" Height="18" Background="#10FFFFFF" Margin="0,0,20,0"/>
+
+                                <!-- HOME -->
+                                <Button x:Name="BtnHome" Cursor="Hand" Click="Nav_Click" Tag="Home" Width="36" Height="36" Margin="2,0" ToolTip="Home">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="9" Background="#1A6366F1" BorderBrush="#336366F1" BorderThickness="1">
+                                                <Viewbox Width="16" Height="16">
+                                                    <Canvas Width="24" Height="24">
+                                                        <Path Fill="White" Data="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                                                    </Canvas>
+                                                </Viewbox>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#226366F1"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- LIBRARY -->
+                                <Button x:Name="BtnLibrary" Cursor="Hand" Click="Nav_Click" Tag="Library" Width="36" Height="36" Margin="2,0" ToolTip="Library">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="9" Background="#0AFFFFFF" BorderBrush="#12FFFFFF" BorderThickness="1">
+                                                <Viewbox Width="16" Height="16">
+                                                    <Canvas Width="24" Height="24">
+                                                        <Path Fill="#6B7280" Data="M3 3h8v8H3zm0 10h8v8H3zm10-10h8v8h-8zm0 10h8v8h-8z"/>
+                                                    </Canvas>
+                                                </Viewbox>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- NEWS -->
+                                <Button x:Name="BtnNews" Cursor="Hand" Click="Nav_Click" Tag="News" Width="36" Height="36" Margin="2,0" ToolTip="News">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="9" Background="#0AFFFFFF" BorderBrush="#12FFFFFF" BorderThickness="1">
+                                                <Grid>
+                                                    <Viewbox Width="16" Height="16">
+                                                        <Canvas Width="24" Height="24">
+                                                            <Path Fill="#6B7280" Data="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                                                        </Canvas>
+                                                    </Viewbox>
+                                                    <Ellipse Width="7" Height="7" Fill="#6366F1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect Color="#6366F1" BlurRadius="4" ShadowDepth="0" Opacity="0.8"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- STATS -->
+                                <Button x:Name="BtnStats" Cursor="Hand" Click="Nav_Click" Tag="Stats" Width="36" Height="36" Margin="2,0" ToolTip="Stats">
+                  <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                      <Border x:Name="bd" CornerRadius="9" Background="#0AFFFFFF" BorderBrush="#12FFFFFF" BorderThickness="1">
+                        <Viewbox Width="16" Height="16">
+                          <Canvas Width="24" Height="24">
+                            <Path Fill="#6B7280" Data="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+                          </Canvas>
+                        </Viewbox>
+                      </Border>
+                      <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/></Trigger>
+                      </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                  </Button.Template>
+                </Button>
+
+                <!-- FRIENDS (NEW) -->
+                <Button x:Name="BtnFriends" Cursor="Hand" Click="Nav_Click" Tag="Friends" Width="36" Height="36" Margin="2,0" ToolTip="Friends">
+                  <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                      <Border x:Name="bd" CornerRadius="9" Background="#0AFFFFFF" BorderBrush="#12FFFFFF" BorderThickness="1">
+                        <Grid>
+                          <Viewbox Width="16" Height="16">
+                            <Canvas Width="24" Height="24">
+                              <Path Fill="#6B7280" Data="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </Canvas>
+                          </Viewbox>
+                          <Ellipse x:Name="FriendsBadge" Width="8" Height="8" Fill="#10B981"
+                                   HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0"
+                                   Visibility="Collapsed">
+                            <Ellipse.Effect><DropShadowEffect Color="#10B981" BlurRadius="4" ShadowDepth="0" Opacity="0.9"/></Ellipse.Effect>
+                          </Ellipse>
+                        </Grid>
+                      </Border>
+                      <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/></Trigger>
+                      </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                  </Button.Template>
+                </Button>
+
+                                <!-- SETTINGS -->
+                                <Button x:Name="BtnSettings" Cursor="Hand" Click="Nav_Click" Tag="Settings" Width="36" Height="36" Margin="2,0" ToolTip="Settings">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="9" Background="#0AFFFFFF" BorderBrush="#12FFFFFF" BorderThickness="1">
+                                                <Viewbox Width="16" Height="16">
+                                                    <Canvas Width="24" Height="24">
+                                                        <Path Fill="#6B7280" Data="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                                                    </Canvas>
+                                                </Viewbox>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" Background="Transparent" MouseLeftButtonDown="TitleBar_Drag"/>
+
+                            <!-- Right side -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                                <Border x:Name="MusicPill" CornerRadius="6" Padding="10,5" Margin="0,0,8,0" Background="#0AFFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1" Cursor="Hand" MouseLeftButtonDown="Music_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="MusicIcon" Text="♪" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" Margin="0,0,5,0"/>
+                                        <TextBlock x:Name="MusicStatusTxt" Text="Music" FontFamily="Segoe UI" FontSize="11" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border CornerRadius="6" Padding="10,5" Margin="0,0,8,0" Background="#0AFFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Grid Width="8" Height="8" Margin="0,0,6,0">
+                                            <Ellipse x:Name="TopServerOuter" Fill="#3010B981" Opacity="0.6"/>
+                                            <Ellipse x:Name="TopServerDot" Width="5" Height="5" Fill="#EF4444" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <TextBlock x:Name="TopServerTxt" Text="Offline" FontFamily="Segoe UI" FontSize="11" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border CornerRadius="6" Padding="10,5" Margin="0,0,8,0" Background="#0AFFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="👥" FontSize="10" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TopPlayersTxt" Text="0 Online" FontFamily="Segoe UI" FontSize="11" Foreground="#6B7280"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border CornerRadius="6" Padding="10,5" Margin="0,0,12,0" Background="#0AFFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <TextBlock x:Name="ClockTxt" Text="00:00" FontFamily="Segoe UI" FontSize="11" Foreground="#4B5563"/>
+                                </Border>
+                                <Border CornerRadius="8" Padding="8,5" Margin="0,0,10,0" Background="#0AFFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1" Cursor="Hand" MouseLeftButtonDown="Avatar_MouseDown">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="24" Height="24" CornerRadius="6" Background="#6366F1" ClipToBounds="True" Margin="0,0,8,0">
+                                            <Image x:Name="HeaderAvatarImg" Stretch="UniformToFill"/>
+                                        </Border>
+                                        <TextBlock x:Name="HeaderUsername" Text="" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <Button Width="30" Height="30" Click="Min_Click" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <TextBlock Text="─" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" Margin="0,6,0,0"/>
+                                </Button>
+                                <Button Width="30" Height="30" Click="Close_Click" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" Background="Transparent" Width="30" Height="30" CornerRadius="5">
+                                                <TextBlock Text="✕" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#6B1A1A"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- PAGES -->
+                    <Grid Grid.Row="1">
+
+                        <!-- HOME -->
+                        <ScrollViewer x:Name="PageHome" Visibility="Visible" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                            <StackPanel Margin="24,18,24,24">
+                                <TextBlock x:Name="GreetingTxt" Text="Good evening" FontFamily="Segoe UI" FontSize="13" Foreground="#374151" Margin="0,0,0,16"/>
+                                <Border CornerRadius="12" Height="272" Margin="0,0,0,18" ClipToBounds="True" BorderBrush="#14FFFFFF" BorderThickness="1">
+                                    <Grid>
+                                        <Border CornerRadius="12">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#1A1760" Offset="0"/>
+                                                    <GradientStop Color="#0D0C2E" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <Ellipse Width="380" Height="380" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-80,-80,0" Opacity="0.18">
+                                            <Ellipse.Fill>
+                                                <RadialGradientBrush>
+                                                    <GradientStop Color="#7C3AED" Offset="0"/>
+                                                    <GradientStop Color="Transparent" Offset="1"/>
+                                                </RadialGradientBrush>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <Border VerticalAlignment="Bottom" Height="160" CornerRadius="0,0,12,12">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                    <GradientStop Color="#00000000" Offset="0"/>
+                                                    <GradientStop Color="#EE000000" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Bottom" Margin="26,0,26,24">
+                                            <Border Background="#18FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="5" Padding="10,4" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                                <TextBlock Text="Chapter 2  ·  Season 4  ·  14.60" FontFamily="Segoe UI" FontSize="10" FontWeight="SemiBold" Foreground="#A5B4FC"/>
+                                            </Border>
+                                            <TextBlock x:Name="BannerTitle" Text="Nexus War" FontFamily="Segoe UI" FontSize="28" FontWeight="Bold" Foreground="White" Margin="0,0,0,8">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect Color="Black" BlurRadius="16" ShadowDepth="0" Opacity="0.7"/>
+                                                </TextBlock.Effect></TextBlock>
+                                            <TextBlock x:Name="BannerDesc" Text="Relive Fortnite Chapter 2 Season 4 on Stark FN. Take out enemies, defeat bosses, and dominate the island alongside Marvel heroes." FontFamily="Segoe UI" FontSize="12" Foreground="#AAB4C8" TextWrapping="Wrap" MaxWidth="480" Margin="0,0,0,18" LineHeight="20"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Style="{StaticResource PrimaryBtn}" Click="Launch_Click" x:Name="BannerPlayBtn">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="▶" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="White"/>
+                                                        <TextBlock x:Name="BannerPlayLbl" Text="Play Now" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+                                                    <Border Width="20" Height="3" CornerRadius="2" Background="White" Margin="0,0,5,0">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect Color="White" BlurRadius="4" ShadowDepth="0" Opacity="0.5"/>
+                                                        </Border.Effect>
+                                                    </Border>
+                                                    <Border Width="8" Height="3" CornerRadius="2" Background="#30FFFFFF" Margin="0,0,5,0" Cursor="Hand" MouseLeftButtonDown="Banner_Next"/>
+                                                    <Border Width="8" Height="3" CornerRadius="2" Background="#18FFFFFF" Cursor="Hand" MouseLeftButtonDown="Banner_Next"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <Grid Margin="0,0,0,18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" CornerRadius="10" Padding="14,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.6"/>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <TextBlock Text="ONLINE" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,6"/>
+                                            <TextBlock x:Name="StatOnline" Text="0" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="White"/>
+                                            <TextBlock Text="players" FontFamily="Segoe UI" FontSize="10" Foreground="#1F2937"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="2" CornerRadius="10" Padding="14,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.6"/>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <TextBlock Text="SERVER" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,6"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Grid Width="10" Height="10" Margin="0,0,8,0">
+                                                    <Ellipse x:Name="StatServerDotOuter" Fill="#3010B981" Opacity="0.5"/>
+                                                    <Ellipse x:Name="StatServerDot" Width="6" Height="6" Fill="#EF4444" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
+                                                <TextBlock x:Name="StatServerTxt" Text="Offline" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                            </StackPanel>
+                                            <TextBlock Text="status" FontFamily="Segoe UI" FontSize="10" Foreground="#1F2937"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="4" CornerRadius="10" Padding="14,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.6"/>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <TextBlock Text="VERSION" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,6"/>
+                                            <TextBlock Text="14.60" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="White"/>
+                                            <TextBlock Text="C2S4" FontFamily="Segoe UI" FontSize="10" Foreground="#1F2937"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="6" CornerRadius="10" Padding="14,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.6"/>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <TextBlock Text="HOSTS" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,6"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Grid Width="10" Height="10" Margin="0,0,8,0">
+                                                    <Ellipse x:Name="PatchDotOuter" Fill="#30EF4444" Opacity="0.5"/>
+                                                    <Ellipse x:Name="PatchDot" Width="6" Height="6" Fill="#EF4444" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
+                                                <TextBlock x:Name="PatchTxt" Text="Not Patched" FontFamily="Segoe UI" FontSize="15" FontWeight="Bold" Foreground="White"/>
+                                            </StackPanel>
+                                            <TextBlock Text="hosts file" FontFamily="Segoe UI" FontSize="10" Foreground="#1F2937"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                    <TextBlock Text="Latest" FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold" Foreground="White"/>
+                                    <Border Background="#1A6366F1" BorderBrush="#336366F1" BorderThickness="1" CornerRadius="5" Padding="7,2" Margin="10,2,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="2 new" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#A5B4FC"/>
+                                    </Border>
+                                    <Button Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Right" Click="NavNews_Click">
+                                        <TextBlock Text="View all →" FontFamily="Segoe UI" FontSize="11" Foreground="#6366F1"/>
+                                    </Button>
+                                </StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" CornerRadius="10" Padding="16,14" BorderBrush="#0EFFFFFF" BorderThickness="1" Cursor="Hand" MouseLeftButtonDown="NavNews_MouseDown">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="#13102E" Offset="0"/>
+                                                <GradientStop Color="#0A0918" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <Border Background="#206366F1" BorderBrush="#406366F1" BorderThickness="1" CornerRadius="5" Padding="8,3" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                                <TextBlock Text="UPDATE" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#A5B4FC"/>
+                                            </Border>
+                                            <TextBlock Text="Server Update 1.2" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" LineHeight="17" Text="Stability improvements and hitbox fixes."/>
+                                            <TextBlock Text="May 2026" FontFamily="Segoe UI" FontSize="9" Foreground="#1E2336" Margin="0,12,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="2" CornerRadius="10" Padding="16,14" BorderBrush="#0EFFFFFF" BorderThickness="1" Cursor="Hand" MouseLeftButtonDown="NavNews_MouseDown">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="#0D2417" Offset="0"/>
+                                                <GradientStop Color="#09180F" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <Border Background="#2010B981" BorderBrush="#4010B981" BorderThickness="1" CornerRadius="5" Padding="8,3" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                                <TextBlock Text="LIVE" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#6EE7B7"/>
+                                            </Border>
+                                            <TextBlock Text="Stark FN is Live!" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" LineHeight="17" Text="C2S4 14.60 is now available to play."/>
+                                            <TextBlock Text="April 2026" FontFamily="Segoe UI" FontSize="9" Foreground="#1E2336" Margin="0,12,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="4" CornerRadius="10" Padding="16,14" BorderBrush="#08FFFFFF" BorderThickness="1" Cursor="Hand" Opacity="0.5">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="#1A1308" Offset="0"/>
+                                                <GradientStop Color="#0F0C05" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <StackPanel>
+                                            <Border Background="#20F59E0B" BorderBrush="#40F59E0B" BorderThickness="1" CornerRadius="5" Padding="8,3" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                                <TextBlock Text="SOON" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#FCD34D"/>
+                                            </Border>
+                                            <TextBlock Text="Season 15 Coming" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" LineHeight="17" Text="Chapter 2 Season 5 coming to Stark FN soon."/>
+                                            <TextBlock Text="TBA" FontFamily="Segoe UI" FontSize="9" Foreground="#1E2336" Margin="0,12,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- LIBRARY -->
+                        <ScrollViewer x:Name="PageLibrary" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                            <StackPanel Margin="24,18,24,24">
+                                <TextBlock Text="Library" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                <TextBlock Text="Manage your Fortnite builds" FontFamily="Segoe UI" FontSize="12" Foreground="#374151" Margin="0,0,0,22"/>
+                                <Border CornerRadius="12" Padding="20,18" BorderBrush="#0EFFFFFF" BorderThickness="1" Margin="0,0,0,22">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                    </Border.Background>
+                                    <StackPanel>
+                                        <TextBlock Text="ACTIVE BUILD PATH" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#1F2937" Margin="0,0,0,12"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Background="#06FFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                                <TextBlock x:Name="BuildPathTxt" Text="No build selected" FontFamily="Segoe UI" FontSize="12" Foreground="#374151"/>
+                                            </Border>
+                                            <Button Grid.Column="1" Style="{StaticResource GlassBtn}" Margin="10,0,0,0" Click="Browse_Click">
+                                                <TextBlock Text="Browse Folder" FontFamily="Segoe UI" FontSize="12" Foreground="#E2E8F0"/>
+                                            </Button>
+                                        </Grid>
+                                        <TextBlock Text="Select the folder containing your Fortnite 14.60 build. The exe will be found automatically." FontFamily="Segoe UI" FontSize="10" Foreground="#1F2937" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                          <Button Style="{StaticResource GlassBtn}" Click="CheckIntegrity_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                              <TextBlock Text="🔍" FontSize="12" Margin="0,0,6,0"/>
+                                              <TextBlock Text="Check Build Integrity" FontFamily="Segoe UI" FontSize="12" Foreground="#E2E8F0"/>
+                                            </StackPanel>
+                                          </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="Available Builds" FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,14"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Height="220" CornerRadius="10" BorderBrush="#22FFFFFF" BorderThickness="1" ClipToBounds="True" Cursor="Hand">
+                                        <Grid>
+                                            <Border>
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#1E1B4B" Offset="0"/>
+                                                        <GradientStop Color="#2D2470" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                            <Border VerticalAlignment="Bottom" Height="110" CornerRadius="0,0,10,10">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                        <GradientStop Color="#00000000" Offset="0"/>
+                                                        <GradientStop Color="#CC000000" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Bottom" Margin="14,0,14,12">
+                                                <TextBlock Text="Fortnite 14.60" FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
+                                                <TextBlock Text="Chapter 2 Season 4" FontFamily="Segoe UI" FontSize="10" Foreground="#9CA3AF"/>
+                                            </StackPanel>
+                                            <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource GlassBtn}" Margin="0,0,10,10" Click="Launch_Click">
+                                                <TextBlock Text="▶  Play" FontSize="11" Foreground="White" FontFamily="Segoe UI" FontWeight="SemiBold"/>
+                                            </Button>
+                                            <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" Background="#1A6366F1" BorderBrush="#336366F1" BorderThickness="1" CornerRadius="5" Padding="7,3">
+                                                <TextBlock Text="ACTIVE" FontFamily="Segoe UI" FontSize="7" FontWeight="Bold" Foreground="#A5B4FC"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                    <Border Grid.Column="2" Height="220" CornerRadius="10" BorderBrush="#0EFFFFFF" BorderThickness="1" ClipToBounds="True" Opacity="0.4">
+                                        <Grid>
+                                            <Border>
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#064E3B" Offset="0"/>
+                                                        <GradientStop Color="#065F46" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                            <Border VerticalAlignment="Bottom" Height="110" CornerRadius="0,0,10,10">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                        <GradientStop Color="#00000000" Offset="0"/>
+                                                        <GradientStop Color="#CC000000" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Bottom" Margin="14,0,14,12">
+                                                <TextBlock Text="Fortnite 15.00" FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
+                                                <TextBlock Text="Chapter 2 Season 5 — Soon" FontFamily="Segoe UI" FontSize="10" Foreground="#9CA3AF"/>
+                                            </StackPanel>
+                                            <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" Background="#20F59E0B" BorderBrush="#40F59E0B" BorderThickness="1" CornerRadius="5" Padding="7,3">
+                                                <TextBlock Text="SOON" FontFamily="Segoe UI" FontSize="7" FontWeight="Bold" Foreground="#FCD34D"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                    <Border Grid.Column="4" Height="220" CornerRadius="10" BorderBrush="#08FFFFFF" BorderThickness="1" Cursor="Hand" MouseLeftButtonDown="Browse_MouseDown">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#05FFFFFF"/>
+                                        </Border.Background>
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <Border Width="40" Height="40" CornerRadius="10" Background="#10FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                                <TextBlock Text="+" FontFamily="Segoe UI" FontSize="22" Foreground="#374151" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Text="Add Build" FontFamily="Segoe UI" FontSize="12" Foreground="#374151" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <Border CornerRadius="10" Padding="18,16" Margin="0,18,0,0" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#131142" Offset="0"/>
+                                            <GradientStop Color="#09090F" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Need the build?" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,5"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="11" Foreground="#4B5563" Text="Join our Discord to download the Fortnite 14.60 build (~35GB). Extract it then click Browse above."/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Style="{StaticResource GlassBtn}" VerticalAlignment="Center" Margin="16,0,0,0" Click="OpenDiscord_Click">
+                                            <TextBlock Text="Join Discord" FontFamily="Segoe UI" FontSize="12" Foreground="#E2E8F0"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- NEWS -->
+                        <ScrollViewer x:Name="PageNews" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                            <StackPanel Margin="24,18,24,24">
+                                <TextBlock Text="News" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                <TextBlock Text="Latest updates from the Stark FN team" FontFamily="Segoe UI" FontSize="12" Foreground="#374151" Margin="0,0,0,22"/>
+                                <Border CornerRadius="12" Padding="0" Margin="0,0,0,14" BorderBrush="#0EFFFFFF" BorderThickness="1" ClipToBounds="True">
+                                    <Grid>
+                                        <Border>
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#13102E" Offset="0"/>
+                                                    <GradientStop Color="#0A0918" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <StackPanel Margin="24,20">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                <Border Background="#206366F1" BorderBrush="#406366F1" BorderThickness="1" CornerRadius="5" Padding="8,3" Margin="0,0,10,0">
+                                                    <TextBlock Text="UPDATE" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#A5B4FC"/>
+                                                </Border>
+                                                <TextBlock Text="May 2026" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Text="Server Update 1.2" FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="13" Foreground="#9CA3AF" LineHeight="22" Text="Major stability update. Hitbox desync in close-range combat has been fixed. Matchmaker queue time cut from 30s to under 10s. Memory leak in the profile service patched — server now stays stable for 48h+ without restart. Lobby loading speed improved across the board."/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border CornerRadius="12" Padding="0" Margin="0,0,0,14" BorderBrush="#0EFFFFFF" BorderThickness="1" ClipToBounds="True">
+                                    <Grid>
+                                        <Border>
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#0D2417" Offset="0"/>
+                                                    <GradientStop Color="#09180F" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <StackPanel Margin="24,20">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                <Border Background="#2010B981" BorderBrush="#4010B981" BorderThickness="1" CornerRadius="5" Padding="8,3" Margin="0,0,10,0">
+                                                    <TextBlock Text="LAUNCH" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#6EE7B7"/>
+                                                </Border>
+                                                <TextBlock Text="April 2026" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Text="Stark FN is Live! 🎉" FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="13" Foreground="#9CA3AF" LineHeight="22" Text="Stark FN Private Server officially launched. Fortnite Chapter 2 Season 4 (14.60) is available. The launcher handles hosts patching, auto-login, and build detection automatically. Discord bot is live with /stats, /daily, /leaderboard and locker commands. V-Bucks economy is active — claim your 150 daily V-Bucks now."/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border CornerRadius="12" Padding="0" Margin="0,0,0,14" BorderBrush="#08FFFFFF" BorderThickness="1" ClipToBounds="True" Opacity="0.6">
+                                    <Grid>
+                                        <Border>
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#1A1308" Offset="0"/>
+                                                    <GradientStop Color="#0F0C05" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+                                        <StackPanel Margin="24,20">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                <Border Background="#20F59E0B" BorderBrush="#40F59E0B" BorderThickness="1" CornerRadius="5" Padding="8,3" Margin="0,0,10,0">
+                                                    <TextBlock Text="COMING SOON" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#FCD34D"/>
+                                                </Border>
+                                                <TextBlock Text="TBA" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Text="Chapter 2 Season 5" FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                            <TextBlock TextWrapping="Wrap" FontFamily="Segoe UI" FontSize="13" Foreground="#9CA3AF" LineHeight="22" Text="Zero Point and Season 5 are in active development. Arena mode, ranked leaderboards and the Chapter 2 Season 5 island are all being worked on. Release date will be announced in Discord when we're closer."/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- STATS -->
+                        <ScrollViewer x:Name="PageStats" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                            <StackPanel Margin="24,18,24,24">
+                                <TextBlock Text="My Stats" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                <TextBlock Text="Your Chapter 2 Season 4 performance" FontFamily="Segoe UI" FontSize="12" Foreground="#374151" Margin="0,0,0,22"/>
+                                <Border CornerRadius="12" Padding="24" Margin="0,0,0,16" BorderBrush="#14FFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#1A1760" Offset="0"/>
+                                            <GradientStop Color="#0D0C2E" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="64" Height="64" CornerRadius="14" Background="#6366F1" ClipToBounds="True" Margin="0,0,20,0">
+                                            <Image x:Name="StatsAvatarImg" Stretch="UniformToFill"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock x:Name="StatsUsername" Text="" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                <Ellipse Width="7" Height="7" Fill="#10B981" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Text="Online · Chapter 2 Season 4" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Style="{StaticResource GlassBtn}" VerticalAlignment="Center" Click="RefreshStats_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="↻" FontFamily="Segoe UI" FontSize="14" Foreground="#A5B4FC" Margin="0,0,6,0"/>
+                                                <TextBlock Text="Refresh" FontFamily="Segoe UI" FontSize="12" Foreground="#E2E8F0"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" CornerRadius="12" Padding="20,18" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="🏆" FontSize="28" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                            <TextBlock x:Name="StatsWins" Text="—" FontFamily="Segoe UI" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Wins" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="2" CornerRadius="12" Padding="20,18" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="💀" FontSize="28" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                            <TextBlock x:Name="StatsKills" Text="—" FontFamily="Segoe UI" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Kills" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="4" CornerRadius="12" Padding="20,18" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="🎯" FontSize="28" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                                            <TextBlock x:Name="StatsKD" Text="—" FontFamily="Segoe UI" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="K/D Ratio" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" CornerRadius="10" Padding="16,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="MATCHES" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                            <TextBlock x:Name="StatsMatches" Text="—" FontFamily="Segoe UI" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="2" CornerRadius="10" Padding="16,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="V-BUCKS" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                            <TextBlock x:Name="StatsVbucks" Text="—" FontFamily="Segoe UI" FontSize="22" FontWeight="Bold" Foreground="#A5B4FC" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="4" CornerRadius="10" Padding="16,14" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="PLAYTIME" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                            <TextBlock x:Name="StatsPlaytime" Text="—" FontFamily="Segoe UI" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- FRIENDS -->
+                        <ScrollViewer x:Name="PageFriends" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                            <StackPanel Margin="24,18,24,24">
+                              <Grid Margin="0,0,0,22">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                  <TextBlock Text="Friends" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                  <TextBlock Text="See who's online on Stark FN right now" FontFamily="Segoe UI" FontSize="12" Foreground="#374151" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource GlassBtn}" VerticalAlignment="Center" Click="RefreshFriends_Click">
+                                  <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="↻" FontFamily="Segoe UI" FontSize="14" Foreground="#A5B4FC" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Refresh" FontFamily="Segoe UI" FontSize="12" Foreground="#E2E8F0"/>
+                                  </StackPanel>
+                                </Button>
+                              </Grid>
+
+                              <TextBlock Text="ONLINE" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,10"/>
+                              <StackPanel x:Name="FriendsOnlineList" Margin="0,0,0,20">
+                                <Border CornerRadius="10" Padding="20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                  <Border.Background><SolidColorBrush Color="#0C0D1A" Opacity="0.6"/></Border.Background>
+                                  <TextBlock x:Name="FriendsEmptyTxt" Text="No friends online right now" FontFamily="Segoe UI" FontSize="13" Foreground="#374151"/>
+                                </Border>
+                              </StackPanel>
+
+                              <TextBlock Text="ALL FRIENDS" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,10"/>
+                              <StackPanel x:Name="FriendsAllList" Margin="0,0,0,20"/>
+
+                              <TextBlock Text="ADD FRIEND" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,10"/>
+                              <Border CornerRadius="12" Padding="20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                <Border.Background><SolidColorBrush Color="#0C0D1A" Opacity="0.7"/></Border.Background>
+                                <StackPanel>
+                                  <TextBlock Text="Enter a username to send a friend request" FontFamily="Segoe UI" FontSize="11" Foreground="#374151" Margin="0,0,0,12"/>
+                                  <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <Border Background="#06FFFFFF" BorderBrush="#0EFFFFFF" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                      <TextBox x:Name="AddFriendBox" Background="Transparent" BorderThickness="0" FontFamily="Segoe UI" FontSize="12" Foreground="White" CaretBrush="White"/>
+                                    </Border>
+                                    <Button Grid.Column="1" Style="{StaticResource PrimaryBtn}" Margin="10,0,0,0" Click="AddFriend_Click">
+                                      <TextBlock Text="Add Friend" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                                    </Button>
+                                  </Grid>
+                                </StackPanel>
+                              </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- SETTINGS -->
+                        <ScrollViewer x:Name="PageSettings" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                            <StackPanel Margin="24,18,24,28">
+                                <TextBlock Text="Settings" FontFamily="Segoe UI" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,4"/>
+                                <TextBlock Text="Configure your Stark FN launcher" FontFamily="Segoe UI" FontSize="12" Foreground="#374151" Margin="0,0,0,22"/>
+                                <TextBlock Text="ACCOUNT" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border CornerRadius="12" Padding="20" Margin="0,0,0,20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                    </Border.Background>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Username" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" Margin="0,0,0,4"/>
+                                            <TextBlock x:Name="SetUsername" Text="" FontFamily="Segoe UI" FontSize="14" FontWeight="SemiBold" Foreground="White"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Discord" FontFamily="Segoe UI" FontSize="10" Foreground="#374151" Margin="0,0,0,4"/>
+                                            <TextBlock x:Name="SetDiscord" Text="Not linked" FontFamily="Segoe UI" FontSize="12" Foreground="#4B5563"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <TextBlock Text="MUSIC" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border CornerRadius="12" Padding="0" Margin="0,0,0,20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                    </Border.Background>
+                                    <StackPanel>
+                                        <Border Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Background Music" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                        <Border Background="#1A6366F1" BorderBrush="#336366F1" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="8,2,0,0" VerticalAlignment="Center">
+                                                            <TextBlock Text="NEW" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#A5B4FC"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <TextBlock Text="Play Fortnite C2S4 Festive lobby music in the background" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleMusic" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_Music" VerticalAlignment="Center" Background="#1E2030">
+                                                    <Border x:Name="ToggleMusicThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#4B5563">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="MusicThumbTx" X="0"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <Border x:Name="VolumeRow" Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1" Visibility="Collapsed">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="48"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Volume" FontFamily="Segoe UI" FontSize="11" Foreground="#9CA3AF" Margin="0,0,0,10"/>
+                                                    <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="60" HorizontalAlignment="Stretch" ValueChanged="Volume_Changed"/>
+                                                </StackPanel>
+                                                <TextBlock x:Name="VolumeTxt" Text="60%" Grid.Column="1" FontFamily="Segoe UI" FontSize="12" Foreground="#6B7280" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+                                        <Border x:Name="NowPlayingRow" Padding="18,14" Visibility="Collapsed">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="36" Height="36" CornerRadius="8" Margin="0,0,12,0">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                            <GradientStop Color="#6366F1" Offset="0"/>
+                                                            <GradientStop Color="#8B5CF6" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <TextBlock Text="🎵" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Now Playing" FontFamily="Segoe UI" FontSize="10" Foreground="#374151"/>
+                                                    <TextBlock Text="Festive Lobby Music — C1S7" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                    <Border x:Name="MBar1" Width="3" Height="8" CornerRadius="2" Margin="1,0" Background="#6366F1"/>
+                                                    <Border x:Name="MBar2" Width="3" Height="14" CornerRadius="2" Margin="1,0" Background="#6366F1"/>
+                                                    <Border x:Name="MBar3" Width="3" Height="6" CornerRadius="2" Margin="1,0" Background="#6366F1"/>
+                                                    <Border x:Name="MBar4" Width="3" Height="10" CornerRadius="2" Margin="1,0" Background="#6366F1"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="GAME SETTINGS" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border CornerRadius="12" Padding="0" Margin="0,0,0,20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                    </Border.Background>
+                                    <StackPanel>
+                                        <Border Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Edit on Release" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Reset builds automatically when you release the key" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleEOR" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_EOR" VerticalAlignment="Center" Background="#1E2030">
+                                                    <Border x:Name="ToggleEORThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#4B5563">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="EORThumbTx" X="0"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <Border Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Disable Texture Streaming" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Reduces VRAM usage, recommended for lower-end PCs" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleTexture" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_Texture" VerticalAlignment="Center" Background="#1A3A22">
+                                                    <Border x:Name="ToggleTextureThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#10B981">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="TextureThumbTx" X="20"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <Border Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Force DirectX 11" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Launch with -dx11 flag for better compatibility" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleDX11" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_DX11" VerticalAlignment="Center" Background="#1A3A22">
+                                                    <Border x:Name="ToggleDX11Thumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#10B981">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="DX11ThumbTx" X="20"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <Border Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Skip Splash Screen" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Skip the Epic Games splash screen on launch" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleSplash" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_Splash" VerticalAlignment="Center" Background="#1A3A22">
+                                                    <Border x:Name="ToggleSplashThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#10B981">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="SplashThumbTx" X="20"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <Border Padding="18,14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Auto Patch Hosts on Launch" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Automatically patch hosts file when you click Play" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleAutoPatch" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_AutoPatch" VerticalAlignment="Center" Background="#1A3A22">
+                                                    <Border x:Name="ToggleAutoPatchThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#10B981">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="AutoPatchThumbTx" X="20"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="LAUNCHER SETTINGS" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border CornerRadius="12" Padding="0" Margin="0,0,0,20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                    </Border.Background>
+                                    <StackPanel>
+                                        <Border Padding="18,14" BorderBrush="#08FFFFFF" BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Discord Rich Presence" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Show Stark FN activity status in Discord" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleRPC" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_RPC" VerticalAlignment="Center" Background="#1A3A22">
+                                                    <Border x:Name="ToggleRPCThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#10B981">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="RPCThumbTx" X="20"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <Border Padding="18,14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="Minimize to Tray on Close" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                                    <TextBlock Text="Keep launcher running in the system tray" FontFamily="Segoe UI" FontSize="10" Foreground="#4B5563" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <Border x:Name="ToggleTray" Grid.Column="1" Width="44" Height="24" CornerRadius="12" Cursor="Hand" MouseLeftButtonDown="Toggle_Tray" VerticalAlignment="Center" Background="#1E2030">
+                                                    <Border x:Name="ToggleTrayThumb" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0" Background="#4B5563">
+                                                        <Border.RenderTransform>
+                                                            <TranslateTransform x:Name="TrayThumbTx" X="0"/>
+                                                        </Border.RenderTransform>
+                                                    </Border>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="HOSTS FILE" FontFamily="Segoe UI" FontSize="8" FontWeight="Bold" Foreground="#374151" Margin="0,0,0,8"/>
+                                <Border CornerRadius="12" Padding="20" Margin="0,0,0,20" BorderBrush="#0EFFFFFF" BorderThickness="1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="#0C0D1A" Opacity="0.7"/>
+                                    </Border.Background>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <Grid Width="10" Height="10" Margin="0,0,9,0">
+                                                <Ellipse x:Name="SetPatchDotOuter" Fill="#30EF4444" Opacity="0.5"/>
+                                                <Ellipse x:Name="SetPatchDot" Width="6" Height="6" Fill="#EF4444" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Grid>
+                                            <TextBlock x:Name="SetPatchTxt" Text="Not Patched" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Redirects Epic servers to Stark FN so the game connects to your backend." FontFamily="Segoe UI" FontSize="10" Foreground="#374151" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource PrimaryBtn}" Margin="0,0,10,0" Click="PatchHosts_Click">
+                                                <TextBlock Text="Patch Hosts" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                                            </Button>
+                                            <Button Style="{StaticResource GlassBtn}" Click="RestoreHosts_Click">
+                                                <TextBlock Text="Restore" FontFamily="Segoe UI" FontSize="12" Foreground="#9CA3AF"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock Text="Stark FN Launcher v1.0  ·  Chapter 2 Season 4  ·  14.60" FontFamily="Segoe UI" FontSize="9" Foreground="#111318" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                    </Grid>
+
+                    <!-- TOAST -->
+                    <Border x:Name="ToastBar" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,18,18" Visibility="Collapsed" CornerRadius="10" Padding="14,10" BorderBrush="#14FFFFFF" BorderThickness="1" MinWidth="260" MaxWidth="400">
+                        <Border.Background>
+                            <SolidColorBrush Color="#0D0E1A" Opacity="0.97"/>
+                        </Border.Background>
+                        <Border.Effect>
+                            <DropShadowEffect Color="Black" BlurRadius="28" ShadowDepth="0" Opacity="0.8"/>
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="ToastIcon" Text="ℹ" FontSize="13" Foreground="#6366F1" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ToastTxt" FontFamily="Segoe UI" FontSize="12" Foreground="#D1D5DB" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Profile popup -->
+                <Border x:Name="ProfilePopup" Visibility="Collapsed" Width="190" CornerRadius="10" BorderBrush="#22FFFFFF" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,52,6,0">
+                    <Border.Background>
+                        <SolidColorBrush Color="#0F1018" Opacity="0.98"/>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="24" ShadowDepth="0" Opacity="0.9"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <StackPanel Margin="12,12,12,10">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="34" Height="34" CornerRadius="8" Background="#6366F1" ClipToBounds="True" Margin="0,0,10,0">
+                                    <Image x:Name="PopupAvatarImg" Stretch="UniformToFill"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock x:Name="PopupUsername" Text="" FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock Text="Stark FN Member" FontFamily="Segoe UI" FontSize="9" Foreground="#374151"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Height="1" Background="#10FFFFFF"/>
+                        <Button Background="Transparent" BorderThickness="0" Cursor="Hand" Click="PopupStats_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="Transparent" Padding="12,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📊" FontSize="12" Margin="0,0,10,0"/>
+                                            <TextBlock Text="My Stats" FontFamily="Segoe UI" FontSize="12" Foreground="#9CA3AF"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#08FFFFFF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Background="Transparent" BorderThickness="0" Cursor="Hand" Click="PopupSettings_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="Transparent" Padding="12,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⚙" FontSize="12" Foreground="#374151" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Settings" FontFamily="Segoe UI" FontSize="12" Foreground="#9CA3AF"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#08FFFFFF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Button Background="Transparent" BorderThickness="0" Cursor="Hand" Click="Logout_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="Transparent" Padding="12,10" CornerRadius="0,0,10,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⏻" FontSize="12" Foreground="#EF4444" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Log out" FontFamily="Segoe UI" FontSize="12" Foreground="#EF4444"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="#12EF4444"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
