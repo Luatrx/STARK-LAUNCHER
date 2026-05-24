@@ -1,0 +1,174 @@
+import tkinter as tk
+import json
+import os
+import random
+
+SAVE_FILE = "skins_data.json"
+
+SKINS = [
+    {"name": "Default Soldier", "price": 200, "rarity": "Common"},
+    {"name": "Street Runner", "price": 400, "rarity": "Rare"},
+    {"name": "Neon Drift", "price": 700, "rarity": "Epic"},
+    {"name": "Void Phantom", "price": 1200, "rarity": "Legendary"},
+    {"name": "Ice Assassin", "price": 900, "rarity": "Epic"},
+]
+
+RARITY_COLORS = {
+    "Common": "#aaaaaa",
+    "Rare": "#4aa3ff",
+    "Epic": "#b84aff",
+    "Legendary": "#ffb300"
+}
+
+
+class Launcher:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Advanced Item Shop")
+        self.root.geometry("700x450")
+
+        self.coins = 2000
+        self.owned = []
+        self.equipped = "None"
+
+        self.load_data()
+        self.daily_shop = self.generate_daily_shop()
+
+        self.main_ui()
+
+    # ---------------- DAILY SHOP ----------------
+    def generate_daily_shop(self):
+        return random.sample(SKINS, k=min(3, len(SKINS)))
+
+    # ---------------- SAVE SYSTEM ----------------
+    def save_data(self):
+        data = {
+            "coins": self.coins,
+            "owned": self.owned,
+            "equipped": self.equipped
+        }
+        with open(SAVE_FILE, "w") as f:
+            json.dump(data, f)
+
+    def load_data(self):
+        if os.path.exists(SAVE_FILE):
+            with open(SAVE_FILE, "r") as f:
+                data = json.load(f)
+                self.coins = data.get("coins", 2000)
+                self.owned = data.get("owned", [])
+                self.equipped = data.get("equipped", "None")
+
+    # ---------------- MAIN UI ----------------
+    def main_ui(self):
+        self.clear()
+
+        tk.Label(self.root, text="SKIN ITEM SHOP", font=("Arial", 20, "bold")).pack(pady=10)
+
+        self.info = tk.Label(
+            self.root,
+            text=f"Coins: {self.coins} | Equipped: {self.equipped}",
+            font=("Arial", 12)
+        )
+        self.info.pack()
+
+        tk.Button(self.root, text="Open Daily Shop", command=self.shop_ui).pack(pady=10)
+        tk.Button(self.root, text="Inventory", command=self.inventory_ui).pack()
+
+    # ---------------- SHOP UI ----------------
+    def shop_ui(self):
+        self.clear()
+
+        tk.Label(self.root, text="DAILY SHOP", font=("Arial", 18, "bold")).pack(pady=10)
+
+        for skin in self.daily_shop:
+            self.create_card(self.root, skin)
+
+        tk.Button(self.root, text="Back", command=self.main_ui).pack(pady=10)
+
+    # ---------------- CARD UI (3D / GLOW EFFECT) ----------------
+    def create_card(self, parent, skin):
+        frame = tk.Frame(parent, bg="#1a1a1a", bd=2, relief="ridge")
+        frame.pack(pady=8, ipadx=10, ipady=5, fill="x")
+
+        color = RARITY_COLORS.get(skin["rarity"], "white")
+
+        title = tk.Label(
+            frame,
+            text=f"{skin['name']} ({skin['rarity']})",
+            fg=color,
+            bg="#1a1a1a",
+            font=("Arial", 12, "bold")
+        )
+        title.pack(anchor="w")
+
+        tk.Label(
+            frame,
+            text=f"Price: {skin['price']} coins",
+            fg="white",
+            bg="#1a1a1a"
+        ).pack(anchor="w")
+
+        btn_frame = tk.Frame(frame, bg="#1a1a1a")
+        btn_frame.pack(anchor="e")
+
+        tk.Button(
+            btn_frame,
+            text="Buy",
+            command=lambda s=skin: self.buy_skin(s)
+        ).pack(side="left", padx=5)
+
+        tk.Button(
+            btn_frame,
+            text="Equip",
+            command=lambda s=skin: self.equip_skin(s)
+        ).pack(side="left")
+
+    # ---------------- BUY ----------------
+    def buy_skin(self, skin):
+        if skin["name"] in self.owned:
+            return
+
+        if self.coins >= skin["price"]:
+            self.coins -= skin["price"]
+            self.owned.append(skin["name"])
+            self.save_data()
+            self.shop_ui()
+        else:
+            self.popup("Not enough coins!")
+
+    # ---------------- EQUIP SYSTEM ----------------
+    def equip_skin(self, skin):
+        if skin["name"] in self.owned:
+            self.equipped = skin["name"]
+            self.save_data()
+            self.main_ui()
+        else:
+            self.popup("You don't own this skin!")
+
+    # ---------------- INVENTORY ----------------
+    def inventory_ui(self):
+        self.clear()
+
+        tk.Label(self.root, text="INVENTORY", font=("Arial", 18, "bold")).pack(pady=10)
+
+        for skin in self.owned:
+            tk.Label(self.root, text=skin).pack()
+
+        tk.Button(self.root, text="Back", command=self.main_ui).pack(pady=10)
+
+    # ---------------- POPUP ----------------
+    def popup(self, msg):
+        win = tk.Toplevel(self.root)
+        tk.Label(win, text=msg).pack(pady=20)
+        tk.Button(win, text="OK", command=win.destroy).pack()
+
+    # ---------------- UTIL ----------------
+    def clear(self):
+        for w in self.root.winfo_children():
+            w.destroy()
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = Launcher(root)
+    root.mainloop()
